@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Photobooth 4-Cut</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Photobooth 3-Cut</title>
   <style>
     body {
       background: url('IMG_4002.png') no-repeat center center fixed;
@@ -15,101 +15,69 @@
     }
     #container {
       display: flex;
-      gap: 30px;
-    }
-    #leftPanel {
-      display: flex;
       flex-direction: column;
       align-items: center;
     }
     #liveviewContainer {
       position: relative;
-      width: 1063px;
-      height: 750px;
-      border: 2px solid #000;
-      margin-bottom: 10px;
+      width: 640px;
+      height: 480px;
     }
     #liveview {
-      transform: scaleX(-1);
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      background: #000;
-    }
-    #countdown {
-      position: absolute;
-      font-size: 100px;
-      color: white;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: none;
-      z-index: 10;
-    }
-    #photoPreviews {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    #photoPreviews img {
-      width: 100px;
-      height: auto;
-      border: 1px solid #ccc;
-      display: none;
+      transform: scaleX(-1);
+      background: black;
     }
     #controls {
+      margin-top: 20px;
       display: flex;
       gap: 20px;
-      margin-top: 20px;
     }
     #controls button {
       font-size: 24px;
-      padding: 12px 24px;
+      padding: 10px 30px;
     }
-    #frameDisplay {
-      width: 1063px;
-      height: auto;
-      border: 2px solid #333;
+    #previewResult {
+      margin-top: 20px;
+      width: 295px;
+    }
+    #countdown {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 80px;
+      color: white;
+      z-index: 10;
+      display: none;
     }
   </style>
 </head>
 <body>
   <div id="container">
-    <div id="leftPanel">
-      <div id="liveviewContainer">
-        <video id="liveview" autoplay></video>
-        <div id="countdown">3</div>
-      </div>
-      <div id="photoPreviews">
-        <img id="preview1" />
-        <img id="preview2" />
-        <img id="preview3" />
-        <img id="preview4" />
-      </div>
-      <div id="controls">
-        <button id="startBtn">Start</button>
-        <button id="retakeBtn">Retake</button>
-        <button id="downloadBtn" style="display: none;">Download</button>
-      </div>
+    <div id="liveviewContainer">
+      <video id="liveview" autoplay></video>
+      <div id="countdown">3</div>
     </div>
-    <img id="frameDisplay" src="IMG_4003.png" />
+
+    <div id="controls">
+      <button id="startBtn">Start</button>
+      <button id="retakeBtn">Retake</button>
+      <button id="downloadBtn" style="display:none;">Download</button>
+    </div>
+
+    <img id="previewResult" src="IMG_4003.png" alt="Final Result" />
   </div>
 
   <script>
     const liveVideo = document.getElementById("liveview");
     const countdownEl = document.getElementById("countdown");
+    const previewResult = document.getElementById("previewResult");
     const downloadBtn = document.getElementById("downloadBtn");
-    const frameDisplay = document.getElementById("frameDisplay");
-
-    const previewImages = [
-      document.getElementById("preview1"),
-      document.getElementById("preview2"),
-      document.getElementById("preview3"),
-      document.getElementById("preview4"),
-    ];
 
     let stream;
-    let capturedCanvases = [];
+    let capturedImages = [];
 
     navigator.mediaDevices.getUserMedia({ video: true }).then((s) => {
       stream = s;
@@ -132,91 +100,86 @@
       }, 1000);
     }
 
-    function capturePhoto(index) {
+    function capture(index) {
       const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
       canvas.width = 1063;
       canvas.height = 750;
+      const ctx = canvas.getContext("2d");
+
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
       ctx.drawImage(liveVideo, 0, 0, canvas.width, canvas.height);
-      capturedCanvases[index] = canvas;
 
-      previewImages[index].src = canvas.toDataURL();
-      previewImages[index].style.display = "inline-block";
+      capturedImages[index] = canvas;
     }
 
-    function generateFinalPreview() {
+    function generateFinal() {
       const finalCanvas = document.createElement("canvas");
-      finalCanvas.width = 1063;
-      finalCanvas.height = 3310;
+      finalCanvas.width = 1181;
+      finalCanvas.height = 3543;
       const ctx = finalCanvas.getContext("2d");
 
+      // Background putih
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
-      const photoHeight = 750;
       const photoWidth = 1063;
-      const gap = 70;
-      const startY = 100;
+      const photoHeight = 750;
+      const x = (finalCanvas.width - photoWidth) / 2;
 
-      const offsets = [
-        startY,
-        startY + photoHeight + gap,
-        startY + (photoHeight + gap) * 2,
-        startY + (photoHeight + gap) * 3,
-      ];
+      const yPositions = [100, 920, 1740];
 
-      capturedCanvases.forEach((canvas, i) => {
-        ctx.drawImage(canvas, 0, offsets[i], photoWidth, photoHeight);
-      });
+      for (let i = 0; i < 3; i++) {
+        if (capturedImages[i]) {
+          ctx.drawImage(capturedImages[i], x, yPositions[i], photoWidth, photoHeight);
+        }
+      }
 
+      // Tambahkan frame
       const frame = new Image();
       frame.src = "IMG_4003.png";
       frame.onload = () => {
         ctx.drawImage(frame, 0, 0, finalCanvas.width, finalCanvas.height);
-        const finalDataURL = finalCanvas.toDataURL();
-
-        frameDisplay.src = finalDataURL;
+        const finalData = finalCanvas.toDataURL("image/png");
+        previewResult.src = finalData;
 
         downloadBtn.style.display = "inline-block";
         downloadBtn.onclick = () => {
           const a = document.createElement("a");
-          a.href = finalDataURL;
-          a.download = "photobooth.png";
+          a.href = finalData;
+          a.download = "photostrip.png";
           a.click();
         };
       };
     }
 
     function startCapture() {
-      capturedCanvases = [];
-      const takePhotos = async () => {
-        for (let i = 0; i < 4; i++) {
-          await new Promise((resolve) => {
-            showCountdown(() => {
-              capturePhoto(i);
-              resolve();
-            });
+      capturedImages = [];
+      let i = 0;
+
+      function takeNext() {
+        if (i < 3) {
+          showCountdown(() => {
+            capture(i);
+            i++;
+            takeNext();
           });
+        } else {
+          generateFinal();
         }
-        generateFinalPreview();
-      };
-      takePhotos();
+      }
+
+      takeNext();
     }
 
-    document.getElementById("startBtn").addEventListener("click", startCapture);
+    document.getElementById("startBtn").onclick = startCapture;
 
-    document.getElementById("retakeBtn").addEventListener("click", () => {
-      previewImages.forEach(img => {
-        img.src = "";
-        img.style.display = "none";
-      });
-      capturedCanvases = [];
-      frameDisplay.src = "IMG_4003.png";
+    document.getElementById("retakeBtn").onclick = () => {
+      capturedImages = [];
+      previewResult.src = "IMG_4003.png";
       downloadBtn.style.display = "none";
       startCapture();
-    });
+    };
   </script>
 </body>
 </html>
