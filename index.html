@@ -24,7 +24,7 @@
     }
     #liveviewContainer {
       position: relative;
-      width: 682px;
+      width: 1063px;
       height: 750px;
       border: 2px solid #000;
       margin-bottom: 10px;
@@ -67,7 +67,7 @@
       padding: 12px 24px;
     }
     #frameDisplay {
-      width: 682px;
+      width: 1063px;
       height: auto;
       border: 2px solid #333;
     }
@@ -135,7 +135,7 @@
     function capturePhoto(index) {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
-      canvas.width = 682;
+      canvas.width = 1063;
       canvas.height = 750;
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
@@ -148,15 +148,15 @@
 
     function generateFinalPreview() {
       const finalCanvas = document.createElement("canvas");
-      finalCanvas.width = 682;
-      finalCanvas.height = 3260;
+      finalCanvas.width = 1063;
+      finalCanvas.height = 3310;
       const ctx = finalCanvas.getContext("2d");
 
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
       const photoHeight = 750;
-      const photoWidth = 682;
+      const photoWidth = 1063;
       const gap = 70;
       const startY = 100;
 
